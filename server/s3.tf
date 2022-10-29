@@ -1,24 +1,29 @@
-resource "aws_s3_bucket" "mlflow_artifact_bucket" {
-    bucket = "cm-mlflow-bucket"
+# Creates an s3 bucket
+resource "aws_s3_bucket" "cm_mlflow" {
+    bucket = "${var.name}-${var.env}"
 
     force_destroy = true
     tags = {
-        Name        = "artifact_bucket"
-        Environment = "dev"
+        Name        = "${var.name}-s3"
+        Environment = "${var.env}"
     }
 }
 
-resource "aws_s3_bucket_acl" "bucket_acl" {
-    bucket = aws_s3_bucket.mlflow_artifact_bucket.id
-    acl    = "private"
-}
-
-resource "aws_s3_bucket_versioning" "bucket_versioning" {
-    bucket = aws_s3_bucket.mlflow_artifact_bucket.id
+# Allows objects in bucket to be versioned 
+resource "aws_s3_bucket_versioning" "cm_mlflow" {
+    bucket = aws_s3_bucket.cm_mlflow.id 
     
     versioning_configuration {
         status = "Enabled"
     }
 }
 
-# Potentially add: Encrpytion (for security purposes)
+# Blocks all public access to the bucket 
+resource "aws_s3_bucket_public_access_block" "cm_mlflow" {
+    bucket = aws_s3_bucket.cm_mlflow.id 
+
+    block_public_acls = true 
+    block_public_policy = true 
+    ignore_public_acls = true 
+    restrict_public_buckets = true 
+}
