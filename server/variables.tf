@@ -142,4 +142,14 @@ variable "rds_deletion_protection" {
     default = false
 }
 
+variable "mlflow_username" {
+    type = string 
+    description = "The username you wish to use to access the MLFlow app"
+}
+
+variable "mlflow_password" {
+    type = string 
+    description = "The password you wish to use to access the MLFlow app"
+}
+
 data "aws_availability_zones" "available" {}

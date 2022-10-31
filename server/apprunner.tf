@@ -19,8 +19,8 @@ resource "aws_apprunner_service" "cm_mlflow_app" {
                     "MLFLOW_DB_HOST"                    = "${aws_rds_cluster.cm_mlflow_rds.endpoint}"
                     "MLFLOW_DB_PORT"                    = "${aws_rds_cluster.cm_mlflow_rds.port}"
                     "MLFLOW_DB_DATABASE"                = "${aws_rds_cluster.cm_mlflow_rds.database_name}"
-                    "MLFLOW_TRACKING_USERNAME"          = "mlflow-test"
-                    "MLFLOW_TRACKING_PASSWORD"          = "mlflow-test-pw"
+                    "MLFLOW_TRACKING_USERNAME"          = "${var.mlflow_username}"
+                    "MLFLOW_TRACKING_PASSWORD"          = "${var.mlflow_password}"
                     "MLFLOW_SQLALCHEMYSTORE_POOL_CLASS" = "NullPool"                   
                 }
             }
