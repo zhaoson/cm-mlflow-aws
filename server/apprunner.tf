@@ -13,7 +13,7 @@ resource "aws_apprunner_service" "cm_mlflow_app" {
                 port = var.mlflow_port 
                 runtime_environment_variables = {
                     "MLFLOW_ARTIFACT_URI"               = "s3://${aws_s3_bucket.cm_mlflow_bucket.id}"
-                    "MLFLOW_DB_DIALECT"                 = "postgresql"
+                    "MLFLOW_DB_DIALECT"                 = "${var.sql_engine}"
                     "MLFLOW_DB_USERNAME"                = "${aws_rds_cluster.cm_mlflow_rds.master_username}"
                     "MLFLOW_DB_PASSWORD"                = "${random_password.master_password.result}"
                     "MLFLOW_DB_HOST"                    = "${aws_rds_cluster.cm_mlflow_rds.endpoint}"
@@ -28,8 +28,8 @@ resource "aws_apprunner_service" "cm_mlflow_app" {
     }
 
     instance_configuration {
-        cpu               = 1024
-        memory            = 2048
+        cpu               = var.app_cpu
+        memory            = var.app_memory
         instance_role_arn = aws_iam_role.cm_mlflow_app_iam.arn
     }
 
@@ -41,11 +41,10 @@ resource "aws_apprunner_service" "cm_mlflow_app" {
     }
 
     health_check_configuration {
-        healthy_threshold   = 1
-        interval            = 5
-        unhealthy_threshold = 2
-        timeout             = 2
-        protocol            = "TCP"
+        healthy_threshold   = var.app_healthy_threshold
+        interval            = var.app_interval
+        unhealthy_threshold = var.app_unhealthy_threshold
+        timeout             = var.app_timeout
     }
 
     tags = {

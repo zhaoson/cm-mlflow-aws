@@ -45,7 +45,7 @@ resource "aws_db_subnet_group" "cm_mlflow_subnet_group" {
 resource "aws_rds_cluster" "cm_mlflow_rds" {
     cluster_identifier      = "${var.name}-rds"
 
-    engine                  = "aurora-postgresql"
+    engine                  = "aurora-${var.sql_engine}"
     # Don't need to specify engine_version 
     engine_mode             = "serverless"
 
@@ -54,20 +54,21 @@ resource "aws_rds_cluster" "cm_mlflow_rds" {
     master_username         = "${var.username}"
     master_password         = random_password.master_password.result
     backup_retention_period = var.retention_period
-    apply_immediately       = true
-    deletion_protection     = false
     vpc_security_group_ids  = [aws_security_group.cm_mlflow_security.id]
     db_subnet_group_name    = aws_db_subnet_group.cm_mlflow_subnet_group.name 
+    apply_immediately       = var.rds_apply_immediately
+    deletion_protection     = var.rds_deletion_protection
 
     # Need this to delete properly
-    skip_final_snapshot     = true
+    skip_final_snapshot     = var.rds_skip_final_snapshot
+
 
     scaling_configuration {
-        auto_pause               = true 
-        max_capacity             = 16
-        min_capacity             = 2
-        seconds_until_auto_pause = 300
-        timeout_action           = "RollbackCapacityChange"
+        auto_pause               = var.rds_auto_pause
+        max_capacity             = var.rds_max_capacity
+        min_capacity             = var.rds_min_capacity
+        seconds_until_auto_pause = var.rds_seconds_until_auto_pause
+        timeout_action           = var.rds_timeout_action
     }
 
     tags = {
