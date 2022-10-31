@@ -76,7 +76,7 @@ variable "rds_seconds_until_auto_pause" {
     default = 300
 }
 
-variable "rds_auto_pause {
+variable "rds_auto_pause" {
     type = bool
     description = "Whether or not automatic pause of the Aurora DB cluster is allowed"
     default = true 
@@ -124,7 +124,7 @@ variable "app_unhealthy_threshold" {
     default = 2
 }
 
-variables "rds_skip_final_snapshot" {
+variable "rds_skip_final_snapshot" {
     type = bool 
     description = "Determines whether or not a final snapshot of the DB should be created before the cluster is deleted"
     default = true 
@@ -144,12 +144,12 @@ variable "rds_deletion_protection" {
 
 variable "mlflow_username" {
     type = string 
-    description = "The username you wish to use to access the MLFlow app"
+    description = "Please enter the username you wish to use to access the MLFlow app"
 }
 
 variable "mlflow_password" {
     type = string 
-    description = "The password you wish to use to access the MLFlow app"
+    description = "Please enter the password you wish to use to access the MLFlow app"
 }
 
 data "aws_availability_zones" "available" {}
