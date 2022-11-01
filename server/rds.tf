@@ -6,7 +6,7 @@ resource "random_password" "master_password" {
     special = false 
 }
 
-# CREATE A SECURITY GROUP 
+# Create security group for association between RDS and App Runner
 resource "aws_security_group" "cm_mlflow_security" {
     name        = "${var.name}-security"
     description = "Allows access to RDS via Postgres port"
@@ -36,6 +36,7 @@ resource "aws_security_group" "cm_mlflow_security" {
     }
 }
 
+# Create DB subnet group for DB instances in the VPC
 resource "aws_db_subnet_group" "cm_mlflow_subnet_group" {
     name       = "${var.name}-subnet-group"
     subnet_ids = aws_subnet.cm_mlflow_public.*.id 

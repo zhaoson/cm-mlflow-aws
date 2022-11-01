@@ -12,6 +12,7 @@ resource "aws_apprunner_service" "cm_mlflow_app" {
             image_configuration {
                 port = var.mlflow_port 
                 runtime_environment_variables = {
+                    # Sets the environment variables from the docker image 
                     "MLFLOW_ARTIFACT_URI"               = "s3://${aws_s3_bucket.cm_mlflow_bucket.id}"
                     "MLFLOW_DB_DIALECT"                 = "${var.sql_engine}"
                     "MLFLOW_DB_USERNAME"                = "${aws_rds_cluster.cm_mlflow_rds.master_username}"
@@ -27,6 +28,7 @@ resource "aws_apprunner_service" "cm_mlflow_app" {
         }
     }
 
+    # Determines the resources to allocate to the app
     instance_configuration {
         cpu               = var.app_cpu
         memory            = var.app_memory
@@ -40,6 +42,7 @@ resource "aws_apprunner_service" "cm_mlflow_app" {
         }
     }
 
+    # Performs health checks on the app 
     health_check_configuration {
         healthy_threshold   = var.app_healthy_threshold
         interval            = var.app_interval
@@ -52,18 +55,21 @@ resource "aws_apprunner_service" "cm_mlflow_app" {
     }
 }
 
+# Allows the app to send messages to the RDS
 resource "aws_apprunner_vpc_connector" "cm_mlflow_vpc_connector" {
     vpc_connector_name = "${var.name}-vpc-connector"
     subnets            = aws_subnet.cm_mlflow_public.*.id 
     security_groups    = [aws_security_group.cm_mlflow_security.id]
 }
 
+# Creating an IAM role to allow App Runner to deploy the image successfully 
 resource "aws_iam_role" "cm_mlflow_app_iam" {
     name = "${var.name}-app-iam"
 
     assume_role_policy = jsonencode({
         Version = "2012-10-17"
         Statement = [
+            # Necessary to let App Runner access images from ECR 
             {
                 Action = "sts:AssumeRole"
                 Effect = "Allow"
@@ -72,6 +78,8 @@ resource "aws_iam_role" "cm_mlflow_app_iam" {
                     Service = "build.apprunner.amazonaws.com"
                 }
             },
+
+            # Necessary to let App Runner call AWS actions 
             {
                 Action = "sts:AssumeRole"
                 Effect = "Allow"
@@ -88,6 +96,7 @@ resource "aws_iam_role" "cm_mlflow_app_iam" {
     }
 }
 
+# Gives App Runner access to the S3 bucket
 resource "aws_iam_role_policy" "cm_mlflow_s3" {
     name = "${var.name}-s3"
     role = aws_iam_role.cm_mlflow_app_iam.id 
